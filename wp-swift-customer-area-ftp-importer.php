@@ -110,14 +110,14 @@ class WPSwiftCustomerAreaFTPImporter {
 	}
 
 	private function get_path() {
-		// echo getcwd() . "\n";
+		echo getcwd() . "\n";
 		// return WP_CONTENT_DIR.'/customer-area/ftp-uploads/';
 		return '/Users/gary/local/havenvest-private-equity/app/public/wp-content/customer-area/ftp-uploads';
 	}
 
 	private function get_files() {
 		$path = $this->get_path();
-		
+		echo "<pre>"; var_dump($path); echo "</pre>";
 		$filenames = null;
 
 		if (is_dir($path)) {
