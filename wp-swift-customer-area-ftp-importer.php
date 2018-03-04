@@ -111,8 +111,10 @@ class WPSwiftCustomerAreaFTPImporter {
 
 	private function get_path() {
 		echo getcwd() . "\n";
+		echo "<pre>app/customer-area/ftp-uploads/</pre>";
 		// return WP_CONTENT_DIR.'/customer-area/ftp-uploads/';
-		return '/Users/gary/local/havenvest-private-equity/app/public/wp-content/customer-area/ftp-uploads';
+		// return '/Users/gary/local/havenvest-private-equity/app/public/wp-content/customer-area/ftp-uploads';
+		return "app/customer-area/ftp-uploads";
 	}
 
 	private function get_files() {
@@ -138,7 +140,7 @@ class WPSwiftCustomerAreaFTPImporter {
 		else {
 			echo "<p>Invalid path!</p>";
 			echo "<pre>"; var_dump($path); echo "</pre>";
-			add_action( 'admin_notices', array($this, 'sample_admin_notice__error') );
+			// add_action( 'admin_notices', array($this, 'sample_admin_notice__error') );
 		}
 		return $filenames;
 	}
