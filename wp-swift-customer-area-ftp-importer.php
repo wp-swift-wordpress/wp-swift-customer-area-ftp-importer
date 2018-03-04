@@ -110,8 +110,9 @@ class WPSwiftCustomerAreaFTPImporter {
 	}
 
 	private function get_path() {
+		// echo getcwd() . "\n";
 		// return WP_CONTENT_DIR.'/customer-area/ftp-uploads/';
-		return '/Users/gary/Local Sites/havenvest-private-equity/app/public/wp-content/customer-area/ftp-uploads/';
+		return '/Users/gary/local/havenvest-private-equity/app/public/wp-content/customer-area/ftp-uploads';
 	}
 
 	private function get_files() {
@@ -119,7 +120,7 @@ class WPSwiftCustomerAreaFTPImporter {
 		
 		$filenames = null;
 
-		// if (is_dir($path)) {
+		if (is_dir($path)) {
 			if ($handle = opendir($path)) {
 				$filenames = array();
 			    while (false !== ($entry = readdir($handle))) {
@@ -133,10 +134,11 @@ class WPSwiftCustomerAreaFTPImporter {
 			    }
 			    closedir($handle);
 			}
-		// }
-		// else {
-		// 	echo "<pre>"; var_dump($path); echo "</pre>";
-		// }
+		}
+		else {
+			echo "<p>Invalid path!</p>";
+			echo "<pre>"; var_dump($path); echo "</pre>";
+		}
 		return $filenames;
 	}
 
