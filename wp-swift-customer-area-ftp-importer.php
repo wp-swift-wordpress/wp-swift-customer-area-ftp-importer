@@ -32,12 +32,12 @@ class WPSwiftCustomerAreaFTPImporter {
 
 		<div class="wrap">
 			<h2>WP Swift: Customer Area FTP Importer</h2>
-			<!-- <p>WP Customer Area FTP Importer</p> -->
-			<?php //settings_errors(); ?>
+			<p>Parses the WP Customer Area assigned FTP folder and facilitates the importing of PDFs into WP Customer Area private files.</p>
 
 			<?php if (!isset($_POST["filenames"])): ?>
 
 				<?php if ($this->get_files()): ?>
+					<div style="background-color: #F9F9F9; padding: 1rem; padding: 1rem">
 					<form method="post" action="tools.php?page=wp-swift-customer-area-ftp-importer">
 						<?php
 							settings_fields( 'wp_swift_customer_area_ftp_importer_option_group' );
@@ -45,10 +45,7 @@ class WPSwiftCustomerAreaFTPImporter {
 							submit_button("Import PDFs as Customer Area Files");
 						?>
 					</form>	
-				<?php else: ?>
-
-					<p>No files in FTP directory.</p>
-
+				</div>
 				<?php endif ?>
 
 			<?php 
@@ -67,7 +64,7 @@ class WPSwiftCustomerAreaFTPImporter {
 
 		add_settings_section(
 			'wp_swift_customer_area_ftp_importer_setting_section', // id
-			'Settings', // title
+			'File Importer', // title
 			array( $this, 'wp_swift_customer_area_ftp_importer_section_info' ), // callback
 			'wp-swift-customer-area-ftp-importer-admin' // page
 		);
@@ -110,16 +107,11 @@ class WPSwiftCustomerAreaFTPImporter {
 	}
 
 	private function get_path() {
-		echo getcwd() . "\n";
-		echo "<pre>app/customer-area/ftp-uploads/</pre>";
-		// return WP_CONTENT_DIR.'/customer-area/ftp-uploads/';
-		// return '/Users/gary/local/havenvest-private-equity/app/public/wp-content/customer-area/ftp-uploads';
-		return "app/customer-area/ftp-uploads";
+		return WP_CONTENT_DIR.'/customer-area/ftp-uploads/';
 	}
 
 	private function get_files() {
 		$path = $this->get_path();
-		echo "<pre>"; var_dump($path); echo "</pre>";
 		$filenames = null;
 
 		if (is_dir($path)) {
@@ -140,7 +132,6 @@ class WPSwiftCustomerAreaFTPImporter {
 		else {
 			echo "<p>Invalid path!</p>";
 			echo "<pre>"; var_dump($path); echo "</pre>";
-			// add_action( 'admin_notices', array($this, 'sample_admin_notice__error') );
 		}
 		return $filenames;
 	}
@@ -180,53 +171,39 @@ class WPSwiftCustomerAreaFTPImporter {
 		endif;				
 
 		if (count($filenames)): ?>
-			<?php foreach ($filenames as $filename): ?>
-				<?php 
-					$postdata = array(
-					    'post_title'   => $filename,//.' - '.$time,
-					    'post_content' => '',//'This is the content '.$time,
-						'post_status' => 'publish',
-						'post_author' => $user_id
-					);
-					$owners = array(
-					    'usr' => $usr,
-					    'grp'  =>$grp,
-					);
-					$files = array(array(
-						'name' => $filename,
-						'path' => $path,
-						'method' => 'move'
-					));
+			<div style="background-color: #F9F9F9; padding: 1rem">
+				<h3>Creating Files</h3>
+				<p>The following files have been save as <b>Customer Area</b> files.</p>
+			
+				<?php foreach ($filenames as $filename): ?>
+					<?php 
+						$postdata = array(
+						    'post_title'   => $filename,
+						    'post_content' => '',//'This is the content ',
+							'post_status' => 'publish',
+							'post_author' => $user_id
+						);
+						$owners = array(
+						    'usr' => $usr,
+						    'grp'  =>$grp,
+						);
+						$files = array(array(
+							'name' => $filename,
+							'path' => $path,
+							'method' => 'move'
+						));
+					 ?>
+					 <?php if (file_exists( $path.$filename )): ?>
+							<?php if (!$debug): ?>
+								<?php $data = cuar_create_private_file( $postdata, $owners, $files ); ?>
+								<?php if ($data): ?>
+									<a href="<?php echo admin_url( "post.php?post=$data&action=edit&post_type=cuar_private_file" ); ?>" target="_blank"><?php echo $filename; ?></a>
+								<?php endif ?>
+							<?php endif; ?>
+					 <?php endif ?>		
 
-					// echo "<pre>postdata: "; var_dump($postdata); echo "</pre>";
-					// echo "<pre>owners: "; var_dump($owners); echo "</pre>";
-					// echo "<pre>files: "; var_dump($files); echo "</pre>";
-				 ?>
-				 <?php if (file_exists( $path.$filename )): ?>
-				 	<?php 
-
-				 		if (!$debug) {
-							$data = cuar_create_private_file( $postdata, $owners, $files );						
-						}
-						if (isset($data)) {
-							write_log("[data:]");
-							write_log($data);	
-							echo "<pre>data: "; var_dump($data); echo "</pre>";
-						}
-						else {
-							 write_log( "Yes, the file does exist!");
-							 write_log( $filename);
-						}  
-
-						 ?>
-				 	<pre><?php echo $path.$filename ?></pre>
-				 <?php endif ?>
-				
-
-					
-
-			<?php endforeach; ?>
-
+				<?php endforeach; ?>
+			</div>
 		<?php else: ?>
 			<p>The</p>
 		<?php endif;
@@ -266,26 +243,24 @@ class WPSwiftCustomerAreaFTPImporter {
 			<?php endforeach; ?>
 		
 		<?php endif;			
-	}
-
-	private function sample_admin_notice__error() {
-		$class = 'notice notice-error';
-		$path = $this->get_path();
-		echo "<p>Invalid path!</p>";
-		$message = __( 'Invalid path!'.'<br>'."<pre>$path</pre>", 'wp-swift-customer-area-ftp-importer' );
-
-		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
-	}
-		
+	}		
 }
 
 
 function my_plugin_action_links( $links ) {
    $links[] = '<a href="'. esc_url( get_admin_url(null, 'tools.php?page=wp-swift-customer-area-ftp-importer') ) .'">Settings</a>';
-   // $links[] = '<a href="http://wp-buddy.com" target="_blank">More plugins by WP-Buddy</a>';
    return $links;
 }
 
+if ( ! function_exists('write_log')) {
+   function write_log ( $log )  {
+      if ( is_array( $log ) || is_object( $log ) ) {
+         error_log( print_r( $log, true ) );
+      } else {
+         error_log( $log );
+      }
+   }
+}
 if ( is_admin() ) {
 	$wp_swift_customer_area_ftp_importer = new WPSwiftCustomerAreaFTPImporter();
 	add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'my_plugin_action_links' );
