@@ -138,12 +138,13 @@ class WPSwiftCustomerAreaFTPImporter {
 		else {
 			echo "<p>Invalid path!</p>";
 			echo "<pre>"; var_dump($path); echo "</pre>";
+			add_action( 'admin_notices', array($this, 'sample_admin_notice__error') );
 		}
 		return $filenames;
 	}
 
 	public function wp_swift_available_files_callback() {
-		
+		$path = $this->get_path();
 		$filenames = $this->get_files();
 
 		if (count($filenames)): $i = 0; ?>
@@ -264,6 +265,16 @@ class WPSwiftCustomerAreaFTPImporter {
 		
 		<?php endif;			
 	}
+
+	private function sample_admin_notice__error() {
+		$class = 'notice notice-error';
+		$path = $this->get_path();
+		echo "<p>Invalid path!</p>";
+		$message = __( 'Invalid path!'.'<br>'."<pre>$path</pre>", 'wp-swift-customer-area-ftp-importer' );
+
+		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
+	}
+		
 }
 
 
